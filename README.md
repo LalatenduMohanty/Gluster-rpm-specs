@@ -5,3 +5,5 @@ Master branch will be empty as RPM files will be in respective branches correspo
 
 To see a spec file particular for version, run " `git checkout -b <version> origin/<version`  
 e.g. `git checkout -b 3.4.6 origin/3.4.6`
+
+The spec files are taken from fedora dist git i.e. http://pkgs.fedoraproject.org/cgit/glusterfs.git/
