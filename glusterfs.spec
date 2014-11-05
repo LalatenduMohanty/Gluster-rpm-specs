@@ -4,7 +4,7 @@
 %global _for_fedora_koji_builds 1
 
 # uncomment and add '%' to use the prereltag for pre-releases
-%global prereltag beta1
+%global prereltag beta2
 
 # if you wish to compile an rpm without rdma support, compile like this...
 # rpmbuild -ta @PACKAGE_NAME@-@PACKAGE_VERSION@.tar.gz --without rdma
@@ -56,7 +56,7 @@ Summary:          Cluster File System
 %if ( 0%{_for_fedora_koji_builds} )
 Name:             glusterfs
 Version:          3.4.6
-Release:          0.1%{?prereltag:.%{prereltag}}%{?dist}
+Release:          0.2%{?prereltag:.%{prereltag}}%{?dist}
 Vendor:           Fedora Project
 %else
 Name:             @PACKAGE_NAME@
@@ -98,6 +98,7 @@ Requires(postun): systemd-units
 %define _init_enable()  /bin/systemctl enable %1.service ;
 %define _init_disable() /bin/systemctl disable %1.service ;
 %define _init_restart() /bin/systemctl try-restart %1.service ;
+%define _init_start()   /bin/systemctl start %1.service ;
 %define _init_stop()    /bin/systemctl stop %1.service ;
 %define _init_install() %{__install} -D -p -m 0644 %1 %{buildroot}%{_unitdir}/%2.service ;
 # can't seem to make a generic macro that works
@@ -114,6 +115,7 @@ Requires(postun): /sbin/service
 %define _init_enable()  /sbin/chkconfig --add %1 ;
 %define _init_disable() /sbin/chkconfig --del %1 ;
 %define _init_restart() /sbin/service %1 condrestart &>/dev/null ;
+%define _init_start()   /sbin/service %1 start &>/dev/null ;
 %define _init_stop()    /sbin/service %1 stop &>/dev/null ;
 %define _init_install() %{__install} -D -p -m 0755 %1 %{buildroot}%{_sysconfdir}/init.d/%2 ;
 # can't seem to make a generic macro that works
@@ -269,6 +271,9 @@ Requires:         %{name}-cli = %{version}-%{release}
 Requires:         %{name}-libs = %{version}-%{release}
 Requires:         %{name}-fuse = %{version}-%{release}
 Requires:         e2fsprogs xfsprogs
+# psmisc for killall, and nfs-utils and rpcbind/portmap for gnfs server
+Requires:         psmisc
+Requires:         nfs-utils
 %if ( 0%{?fedora} ) || ( 0%{?rhel} && 0%{?rhel} >= 6 )
 Requires:         rpcbind
 %else
@@ -757,6 +762,9 @@ if [ $? -eq 0 ]; then
 
     killall glusterd &> /dev/null
     glusterd --xlator-option *.upgrade=on -N
+    # glusterd _was_ running, we killed it, it exited after *.upgrade=on,
+    # so start it again
+    %_init_start glusterd
 else
     glusterd --xlator-option *.upgrade=on -N
 fi
@@ -780,6 +788,9 @@ if [ $1 -ge 1 ]; then
 fi
 
 %changelog
+* Thu Nov 6 2014 Lalatendu Mohanty <lmohanty@redhat.com>
+- GlusterFS-3.4.6beta2
+
 * Wed Sep 10 2014 Lalatendu Mohanty <lmohanty[at]redhat.com> - 3.4.6.beta1
 - GlusterFS-3.4.6beta1
 
@@ -788,6 +799,9 @@ fi
 
 * Wed Jul 9 2014 Lalatendu Mohanty <lmohanty[at]redhat.com> - 3.4.5.beta2
 - GlusterFS-3.4.5 beta2, patch glusterfs-3.4.5.extras.initd
+
+* Fri Jun 27 2014 Kaleb S. KEITHLEY <kkeithle@redhat.com>
+- psmisc (and nfsutils), better %post server logic (#1146624)
 
 * Thu Jun 26 2014 Humble Chirammal <hchiramm@redhat.com> - 3.4.5.beta1
 - GlusterFS-3.4.5 beta1
