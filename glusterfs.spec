@@ -3,7 +3,7 @@
 %global _for_fedora_koji_builds 1
 
 # uncomment and add '%' to use the prereltag for pre-releases
-%global prereltag beta3
+#%%global prereltag beta3
 
 ##-----------------------------------------------------------------------------
 ## All argument definitions should be placed here and keep them sorted
@@ -145,8 +145,8 @@
 Summary:          Cluster File System
 %if ( 0%{_for_fedora_koji_builds} )
 Name:             glusterfs
-Version:          3.6.0
-Release:          0.5%{?prereltag:.%{prereltag}}%{?dist}
+Version:          3.6.1
+Release:          1%{?prereltag:.%{prereltag}}%{?dist}
 Vendor:           Fedora Project
 %else
 Name:             @PACKAGE_NAME@
@@ -1043,6 +1043,9 @@ fi
 %ghost      %attr(0600,-,-) %{_sharedstatedir}/glusterd/nfs/run/nfs.pid
 
 %changelog
+* Fri Nov 07 2014 Lalatendu Mohanty <lmohanty@redhat.com>
+- GlusterFS 3.6.1 GA
+
 * Wed Oct 1 2014 Humble Chirammal <hchiramm@redhat.com>
 - glusterfs-3.6.0beta3 release
 
