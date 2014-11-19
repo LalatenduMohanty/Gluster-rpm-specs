@@ -146,7 +146,7 @@ Summary:          Cluster File System
 %if ( 0%{_for_fedora_koji_builds} )
 Name:             glusterfs
 Version:          3.6.1
-Release:          1%{?prereltag:.%{prereltag}}%{?dist}
+Release:          2%{?prereltag:.%{prereltag}}%{?dist}
 Vendor:           Fedora Project
 %else
 Name:             @PACKAGE_NAME@
@@ -408,6 +408,7 @@ is in user space and easily manageable.
 This package provides support to ib-verbs library.
 %endif
 
+%if ( ! 0%{_for_fedora_koji_builds} )
 %package regression-tests
 Summary:          Development Tools
 Group:            Development/Tools
@@ -423,6 +424,7 @@ Requires:         nfs-utils xfsprogs yajl
 %description regression-tests
 The Gluster Test Framework, is a suite of scripts used for
 regression testing of Gluster.
+%endif
 
 %if ( 0%{!?_without_ocf:1} )
 %package resource-agents
@@ -710,8 +712,9 @@ install -p -m 0744 extras/hook-scripts/S56glusterd-geo-rep-create-post.sh \
 %{__install} -p -m 0744 extras/hook-scripts/reset/post/*.sh   \
     %{buildroot}%{_sharedstatedir}/glusterd/hooks/1/reset/post
 
-
+%if ( ! 0%{_for_fedora_koji_builds} )
 find ./tests ./run-tests.sh -type f | cpio -pd %{buildroot}%{_prefix}/share/glusterfs
+%endif
 
 ## Install bash completion for cli
 install -p -m 0744 -D extras/command-completion/gluster.bash \
@@ -958,9 +961,11 @@ fi
 %{_libdir}/glusterfs/%{version}%{?prereltag}/rpc-transport/rdma*
 %endif
 
+%if ( ! 0%{_for_fedora_koji_builds} )
 %files regression-tests
 %{_prefix}/share/glusterfs/*
 %exclude %{_prefix}/share/glusterfs/tests/basic/rpm.t
+%endif
 
 %if ( 0%{!?_without_ocf:1} )
 %files resource-agents
@@ -1043,6 +1048,9 @@ fi
 %ghost      %attr(0600,-,-) %{_sharedstatedir}/glusterd/nfs/run/nfs.pid
 
 %changelog
+* Wed Nov 19 2014 Lalatendu Mohanty <lmohanty@redhat.com>
+- Changes to remove regression-tests RPM from Fedora
+
 * Fri Nov 07 2014 Lalatendu Mohanty <lmohanty@redhat.com>
 - GlusterFS 3.6.1 GA
 
